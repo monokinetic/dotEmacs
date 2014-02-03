@@ -82,8 +82,69 @@
 (evil-define-key 'normal org-mode-map ",nw" 'widen)
 (evil-define-key 'normal org-mode-map ",op" 'org-set-property)
 (evil-define-key 'normal org-mode-map ",be" 'ido-switch-buffer)
+(evil-define-key 'normal org-mode-map ",m<" 'org-mobile-push)
+(evil-define-key 'normal org-mode-map ",m>" 'org-mobile-pull)
 (evil-define-key 'normal org-mode-map [(return)] 'org-insert-heading-respect-content)
 
+;; esc quits
+(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-visual-state-map [escape] 'keyboard-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+;; custom functions to sort out evil mode when entering orgmode headings  
+(defun always-insert-item ()
+     (interactive)
+     (if (not (org-in-item-p))
+       (insert "\n- ")
+       (org-insert-item)))
+ 
+(define-key evil-normal-state-map "O" (lambda ()
+                     (interactive)
+                     (end-of-line)
+                     (org-insert-heading)
+                     (evil-append nil)
+                     ))
+ 
+(define-key evil-normal-state-map "o" (lambda ()
+                     (interactive)
+                     (end-of-line)
+                     (always-insert-item)
+                     (evil-append nil)
+                     ))
+ 
+(define-key evil-normal-state-map "t" (lambda ()
+                     (interactive)
+                     (end-of-line)
+                     (org-insert-todo-heading nil)
+                     (evil-append nil)
+                     ))
+(define-key evil-normal-state-map (kbd "M-o") (lambda ()
+                     (interactive)
+                     (end-of-line)
+                     (org-insert-heading)
+                     (org-metaright)
+                     (evil-append nil)
+                     ))
+(define-key evil-normal-state-map (kbd "M-t") (lambda ()
+                     (interactive)
+                     (end-of-line)
+                     (org-insert-todo-heading nil)
+                     (org-metaright)
+                     (evil-append nil)
+                     ))
+(define-key evil-normal-state-map "T" 'org-todo) ; mark a TODO item as DONE
+(define-key evil-normal-state-map ";a" 'org-agenda) ; access agenda buffer
+(define-key evil-normal-state-map "-" 'org-cycle-list-bullet) ; change bullet style
+ 
+; allow us to access org-mode keys directly from Evil's Normal mode
+(define-key evil-normal-state-map "L" 'org-shiftright)
+(define-key evil-normal-state-map "H" 'org-shiftleft)
+(define-key evil-normal-state-map "K" 'org-shiftup)
+(define-key evil-normal-state-map "J" 'org-shiftdown)
 
 ;; fix work proxy
 (setq url-proxy-services
@@ -93,12 +154,23 @@
 
 ;; org-mode stuff
 (require 'org)
+(setq org-directory "~/Dropbox/org")
 (setq org-mobile-directory "~/Dropbox/Apps/myMobOrg")
 (setq org-agenda-files '("~/Dropbox/org"))
 (setq org-default-notes-file "~/Dropbox/org/capture.org")
+(setq org-mobile-inbox-for-pull "~/Dropbox/org/capture.org")
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
+
+;; enter insert mode when adding a heading
+(defun evil-append-when-insert-heading ()
+ "enters insert-mode when inserting a heading"
+	(interactive)
+	(save-excursion
+		(evil-append 1)))
+(add-hook 'org-insert-heading-hook 'evil-append-when-insert-heading)
+
 
 ;; hook to convert from VimOrg
 (defun vimorg-tag-adjust ()
