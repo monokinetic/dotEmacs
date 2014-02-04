@@ -81,7 +81,7 @@
 (evil-define-key 'normal org-mode-map ",ns" 'org-narrow-to-subtree)
 (evil-define-key 'normal org-mode-map ",nw" 'widen)
 (evil-define-key 'normal org-mode-map ",op" 'org-set-property)
-(evil-define-key 'normal org-mode-map ",be" 'ido-switch-buffer)
+(evil-define-key 'normal org-mode-map ",be" 'ibuffer)
 (evil-define-key 'normal org-mode-map ",m<" 'org-mobile-push)
 (evil-define-key 'normal org-mode-map ",m>" 'org-mobile-pull)
 (evil-define-key 'normal org-mode-map [(return)] 'org-insert-heading-respect-content)
@@ -145,6 +145,8 @@
 (define-key evil-normal-state-map "H" 'org-shiftleft)
 (define-key evil-normal-state-map "K" 'org-shiftup)
 (define-key evil-normal-state-map "J" 'org-shiftdown)
+
+(evil-set-initial-state 'org-capture-mode 'insert)
 
 ;; fix work proxy
 (setq url-proxy-services
@@ -214,4 +216,5 @@
 ;; IDO
 (require 'ido)
 (ido-mode t)
+(setq ido-everywhere t)
 (require 'ido-ubiquitous)
