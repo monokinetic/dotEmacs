@@ -159,8 +159,25 @@
 (setq org-directory "~/Dropbox/org")
 (setq org-mobile-directory "~/Dropbox/Apps/myMobOrg")
 (setq org-agenda-files '("~/Dropbox/org"))
+
 (setq org-default-notes-file "~/Dropbox/org/capture.org")
 (setq org-mobile-inbox-for-pull "~/Dropbox/org/capture.org")
+
+(setq org-refile-targets '((nil :maxlevel . 9)
+                           (org-agenda-files :maxlevel . 9)))
+
+(setq org-deadline-warning-days 10)
+(setq org-enforce-todo-dependencies t)
+(setq org-use-fast-todo-selection t)
+(setq org-refile-allow-creating-parent-nodes t)
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
+(setq org-completion-use-ido t)
+(setq ido-max-directory-size 100000)
+
+(setq org-todo-keywords
+  '((sequence "TODO(t)" "STARTED(s!)" "BLOCKED(b@/!)" "FUTURE(f)" "|" "DONE(d!)" "CANCELLED(c@)")))
+
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
