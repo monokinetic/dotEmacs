@@ -20,6 +20,7 @@
 (setq evil-insert-state-cursor '("gray" bar))
 (setq evil-motion-state-cursor '("gray" box))
 
+(evil-set-initial-state 'org-capture-mode 'insert)
 (require 'evil)
 (evil-mode 1)
 ;; define Vim-esque keymap
@@ -45,8 +46,8 @@
   (kbd "M-h") 'org-metaleft
   (kbd "M-j") 'org-metadown
   (kbd "M-k") 'org-metaup
-  (kbd "M--") 'evil-org-normal-heading
-  (kbd "M-_") 'evil-org-heading-after-current)
+  (kbd "M--") 'org-insert-heading-after-current
+  (kbd "M-_") 'org-insert-subheading)
 
 
 ; the ',<num>' keys give quick and easy way to hide/reveal outline
@@ -146,7 +147,6 @@
 (define-key evil-normal-state-map "K" 'org-shiftup)
 (define-key evil-normal-state-map "J" 'org-shiftdown)
 
-(evil-set-initial-state 'org-capture-mode 'insert)
 
 ;; fix work proxy
 (setq url-proxy-services
