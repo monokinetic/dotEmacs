@@ -20,9 +20,14 @@
 (setq evil-insert-state-cursor '("gray" bar))
 (setq evil-motion-state-cursor '("gray" box))
 
-(evil-set-initial-state 'org-capture-mode 'insert)
+;; disable annoying prompts
+(fset 'yes-or-no-p 'y-or-n-p)
+
+
 (require 'evil)
 (evil-mode 1)
+(evil-set-initial-state 'org-capture-mode 'insert)
+
 ;; define Vim-esque keymap
 (define-key evil-normal-state-map (kbd "C-<up>") 'windmove-up)
 (define-key evil-normal-state-map (kbd "C-<down>") 'windmove-down)
