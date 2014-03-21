@@ -23,130 +23,188 @@
 ;; disable annoying prompts
 (fset 'yes-or-no-p 'y-or-n-p)
 
+;; ibuffer stuff
+;; (require 'ibuffer)
+
+;; this is from a stackoverflow thread, might not be necessary?
+;; (setq ibuffer-saved-filter-groups
+;;       (quote (("default"
+;;               ("dired" (mode . dired-mode))
+;;                ("java" (mode . java-mode))
+;;                ("org" (mode . org-mode))
+;;               ("sql" (mode . sql-mode))
+;;                ("xml" (mode . nxml-mode))))))  ;;   ;;
+
+;; (setq ibuffer-show-empty-filter-groups nil)
+
+;; don't show the internal emacs buffers in ibuffer
+;; (add-hook 'ibuffer-mode-hook 
+;;  (lambda () 
+  ;; (ibuffer-switch-to-saved-filter-groups "default")
+;;   (ibuffer-filter-by-name "^[^*]")) ;; to show only dired and files buffers
+
+;;Save History--------------------------------
+;;Save mode-line history between sessions. Very good!
+(setq savehist-additional-variables    ;; Also save ...
+  '(search-ring regexp-search-ring)    ;; ... searches
+  savehist-file "~/.emacs.d/savehist") ;; keep home clean
+(savehist-mode t)                      ;; do this before evaluation
+;;--------------------------------------------
 
 (require 'evil)
 (evil-mode 1)
-(evil-set-initial-state 'org-capture-mode 'insert)
+;; (evil-set-initial-state 'org-capture-mode 'insert)
+(add-hook 'org-capture-mode-hook 'evil-insert-state)
 
-;; define Vim-esque keymap
-(define-key evil-normal-state-map (kbd "C-<up>") 'windmove-up)
-(define-key evil-normal-state-map (kbd "C-<down>") 'windmove-down)
-(define-key evil-normal-state-map (kbd "C-<left>") 'windmove-left)
-(define-key evil-normal-state-map (kbd "C-<right>") 'windmove-right)
-(evil-define-key 'normal org-mode-map
+;; When inserting headings, jump past the clock, and properties, and content
+;; of current heading.
+(setq org-insert-heading-respect-content nil)
+
+;; Alt-return normally breaks the headline if you press it in the
+;; middle of a headline.  Disable that behavior
+(setq org-M-RET-may-split-line nil)
+
+(setq org-insert-heading-always-after-current 't)
+
+(defun evil-org-heading-after-current ()
+  (interactive)
+  (org-insert-heading-after-current)
+  (evil-insert-state)
+  (end-of-line))
+
+(defun evil-org-normal-heading ()
+  (interactive)
+  (org-insert-heading)
+  (evil-insert-state)
+  (end-of-line))
+
+(defun evil-org-subheading-after-current ()
+  (interactive)
+  (org-insert-heading-after-current)
+  (org-do-demote)
+  (evil-insert-state)
+  (end-of-line))
+
+  ;; define Vim-esque keymap
+  (define-key evil-normal-state-map (kbd "C-<up>") 'windmove-up)
+  (define-key evil-normal-state-map (kbd "C-<down>") 'windmove-down)
+  (define-key evil-normal-state-map (kbd "C-<left>") 'windmove-left)
+  (define-key evil-normal-state-map (kbd "C-<right>") 'windmove-right)
+
+  (evil-define-key 'normal org-mode-map
   (kbd "<tab>") 'org-cycle
   (kbd "M-L") 'org-metaright
   (kbd "M-H") 'org-metaleft
   (kbd "M-J") 'org-metadown
   (kbd "M-K") 'org-metaup
   (kbd "C-=") 'org-todo
-  (kbd "M--") 'evil-org-normal-heading
   (kbd "C-j") 'org-forward-same-level
   (kbd "C-k") 'org-backward-same-level
-  (kbd "M-_") 'evil-org-heading-after-current)
+  (kbd "M--") 'evil-org-heading-after-current
+  (kbd "M-_") 'evil-org-subheading-after-current)
 
-(evil-define-key 'insert org-mode-map
+  (evil-define-key 'insert org-mode-map
   (kbd "C-=") 'org-todo
   (kbd "M-l") 'org-metaright
   (kbd "M-h") 'org-metaleft
   (kbd "M-j") 'org-metadown
   (kbd "M-k") 'org-metaup
-  (kbd "M--") 'org-insert-heading-after-current
-  (kbd "M-_") 'org-insert-subheading)
+  (kbd "M--") 'evil-org-heading-after-current
+  (kbd "M-_") 'evil-org-subheading-after-current)
 
+  ; the ',<num>' keys give quick and easy way to hide/reveal outline
+  ; structure of entire document (analogous to <shift-tab>);
+  (evil-define-key 'normal org-mode-map ",1" '(lambda() (interactive)(hide-sublevels 1)))
+  (evil-define-key 'normal org-mode-map ",2" '(lambda() (interactive)(hide-sublevels 2)))
+  (evil-define-key 'normal org-mode-map ",3" '(lambda() (interactive)(hide-sublevels 3)))
+  (evil-define-key 'normal org-mode-map ",4" '(lambda() (interactive)(hide-sublevels 4)))
+  (evil-define-key 'normal org-mode-map ",5" '(lambda() (interactive)(hide-sublevels 5)))
+  (evil-define-key 'normal org-mode-map ",6" '(lambda() (interactive)(hide-sublevels 6)))
+  (evil-define-key 'normal org-mode-map ",7" '(lambda() (interactive)(hide-sublevels 7)))
+  (evil-define-key 'normal org-mode-map ",8" '(lambda() (interactive)(hide-sublevels 8)))
 
-; the ',<num>' keys give quick and easy way to hide/reveal outline
-; structure of entire document (analogous to <shift-tab>);
-(evil-define-key 'normal org-mode-map ",1" '(lambda() (interactive)(hide-sublevels 1)))
-(evil-define-key 'normal org-mode-map ",2" '(lambda() (interactive)(hide-sublevels 2)))
-(evil-define-key 'normal org-mode-map ",3" '(lambda() (interactive)(hide-sublevels 3)))
-(evil-define-key 'normal org-mode-map ",4" '(lambda() (interactive)(hide-sublevels 4)))
-(evil-define-key 'normal org-mode-map ",5" '(lambda() (interactive)(hide-sublevels 5)))
-(evil-define-key 'normal org-mode-map ",6" '(lambda() (interactive)(hide-sublevels 6)))
-(evil-define-key 'normal org-mode-map ",7" '(lambda() (interactive)(hide-sublevels 7)))
-(evil-define-key 'normal org-mode-map ",8" '(lambda() (interactive)(hide-sublevels 8)))
+  ; various commands mapped below
+  (evil-define-key 'normal org-mode-map ",dd" 'org-deadline)
+  (evil-define-key 'normal org-mode-map ",ds" 'org-schedule)
+  (evil-define-key 'normal org-mode-map ",te" 'org-set-tags-command)
+  (evil-define-key 'normal org-mode-map ",ts" 'org-todo)
+  (evil-define-key 'normal org-mode-map ",r" 'org-refile)
+  (evil-define-key 'normal org-mode-map ",c" 'org-capture)
+  (evil-define-key 'normal org-mode-map ",ag" 'org-agenda)
+  (evil-define-key 'normal org-mode-map "<<" 'org-promote-subtree)
+  (evil-define-key 'normal org-mode-map ">>" 'org-demote-subtree)
+  (evil-define-key 'normal org-mode-map ">." 'org-move-subtree-down)
+  (evil-define-key 'normal org-mode-map "<," 'org-move-subtree-up)
+  (evil-define-key 'normal org-mode-map "gj" 'org-forward-same-level)
+  (evil-define-key 'normal org-mode-map "gk" 'org-backward-same-level)
+  (evil-define-key 'normal org-mode-map "gh" 'outline-up-heading)
+  (evil-define-key 'normal org-mode-map "gl" 'outline-next-visible-heading)
+  (evil-define-key 'normal org-mode-map ",g" 'org-goto)
+  (evil-define-key 'normal org-mode-map ",ex" 'org-export)
+  (evil-define-key 'normal org-mode-map ",ns" 'org-narrow-to-subtree)
+  (evil-define-key 'normal org-mode-map ",nw" 'widen)
+  (evil-define-key 'normal org-mode-map ",op" 'org-set-property)
+  (evil-define-key 'normal org-mode-map ",be" 'ibuffer)
+  (evil-define-key 'normal org-mode-map ",bs" 'ibuffer-other-window)
+  (evil-define-key 'normal org-mode-map ",m<" 'org-mobile-push)
+  (evil-define-key 'normal org-mode-map ",m>" 'org-mobile-pull)
+  (evil-define-key 'normal org-mode-map [(return)] 'org-insert-heading-respect-content)
 
-; various commands mapped below
-(evil-define-key 'normal org-mode-map ",dd" 'org-deadline)
-(evil-define-key 'normal org-mode-map ",ds" 'org-schedule)
-(evil-define-key 'normal org-mode-map ",te" 'org-set-tags-command)
-(evil-define-key 'normal org-mode-map ",ts" 'org-todo)
-(evil-define-key 'normal org-mode-map ",r" 'org-refile)
-(evil-define-key 'normal org-mode-map ",c" 'org-capture)
-(evil-define-key 'normal org-mode-map ",ag" 'org-agenda)
-(evil-define-key 'normal org-mode-map "<<" 'org-promote-subtree)
-(evil-define-key 'normal org-mode-map ">>" 'org-demote-subtree)
-(evil-define-key 'normal org-mode-map ">." 'org-move-subtree-down)
-(evil-define-key 'normal org-mode-map "<," 'org-move-subtree-up)
-(evil-define-key 'normal org-mode-map "gj" 'org-forward-same-level)
-(evil-define-key 'normal org-mode-map "gk" 'org-backward-same-level)
-(evil-define-key 'normal org-mode-map "gh" 'outline-up-heading)
-(evil-define-key 'normal org-mode-map "gl" 'outline-next-visible-heading)
-(evil-define-key 'normal org-mode-map ",g" 'org-goto)
-(evil-define-key 'normal org-mode-map ",ex" 'org-export)
-(evil-define-key 'normal org-mode-map ",ns" 'org-narrow-to-subtree)
-(evil-define-key 'normal org-mode-map ",nw" 'widen)
-(evil-define-key 'normal org-mode-map ",op" 'org-set-property)
-(evil-define-key 'normal org-mode-map ",be" 'ibuffer)
-(evil-define-key 'normal org-mode-map ",m<" 'org-mobile-push)
-(evil-define-key 'normal org-mode-map ",m>" 'org-mobile-pull)
-(evil-define-key 'normal org-mode-map [(return)] 'org-insert-heading-respect-content)
+  ;; esc quits
+  (define-key evil-normal-state-map [escape] 'keyboard-quit)
+  (define-key evil-visual-state-map [escape] 'keyboard-quit)
+  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
-;; esc quits
-(define-key evil-normal-state-map [escape] 'keyboard-quit)
-(define-key evil-visual-state-map [escape] 'keyboard-quit)
-(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+  ;; custom functions to sort out evil mode when entering orgmode headings  
+  (defun always-insert-item ()
+  (interactive)
+  (if (not (org-in-item-p))
+  (insert "\n- ")
+  (org-insert-item)))
+  
+  ;; (define-key evil-normal-state-map "O" (lambda ()
+  ;;                      (interactive)
+  ;;                      (end-of-line)
+  ;;                      (org-insert-heading)
+  ;;                      (evil-append nil)
+  ;;                      ))
+  
+  ;; (define-key evil-normal-state-map "o" (lambda ()
+  ;;                      (interactive)
+  ;;                      (end-of-line)
+  ;;                      (always-insert-item)
+  ;;                      (evil-append nil)
+  ;; 	                    ))
 
-;; custom functions to sort out evil mode when entering orgmode headings  
-(defun always-insert-item ()
-     (interactive)
-     (if (not (org-in-item-p))
-       (insert "\n- ")
-       (org-insert-item)))
- 
-(define-key evil-normal-state-map "O" (lambda ()
-                     (interactive)
-                     (end-of-line)
-                     (org-insert-heading)
-                     (evil-append nil)
-                     ))
- 
-(define-key evil-normal-state-map "o" (lambda ()
-                     (interactive)
-                     (end-of-line)
-                     (always-insert-item)
-                     (evil-append nil)
-                     ))
- 
 (define-key evil-normal-state-map "t" (lambda ()
-                     (interactive)
-                     (end-of-line)
-                     (org-insert-todo-heading nil)
-                     (evil-append nil)
-                     ))
+					(interactive)
+					(end-of-line)
+					(org-insert-todo-heading nil)
+					(evil-append nil)
+					))
 (define-key evil-normal-state-map (kbd "M-o") (lambda ()
-                     (interactive)
-                     (end-of-line)
-                     (org-insert-heading)
-                     (org-metaright)
-                     (evil-append nil)
-                     ))
+						(interactive)
+						(end-of-line)
+						(org-insert-heading)
+						(org-metaright)
+						(evil-append nil)
+						))
 (define-key evil-normal-state-map (kbd "M-t") (lambda ()
-                     (interactive)
-                     (end-of-line)
-                     (org-insert-todo-heading nil)
-                     (org-metaright)
-                     (evil-append nil)
-                     ))
+						(interactive)
+						(end-of-line)
+						(org-insert-todo-heading nil)
+						(org-metaright)
+						(evil-append nil)
+						))
 (define-key evil-normal-state-map "T" 'org-todo) ; mark a TODO item as DONE
 (define-key evil-normal-state-map ";a" 'org-agenda) ; access agenda buffer
 (define-key evil-normal-state-map "-" 'org-cycle-list-bullet) ; change bullet style
- 
-; allow us to access org-mode keys directly from Evil's Normal mode
+
+					; allow us to access org-mode keys directly from Evil's Normal mode
 (define-key evil-normal-state-map "L" 'org-shiftright)
 (define-key evil-normal-state-map "H" 'org-shiftleft)
 (define-key evil-normal-state-map "K" 'org-shiftup)
@@ -169,7 +227,7 @@
 (setq org-mobile-inbox-for-pull "~/Dropbox/org/capture.org")
 
 (setq org-refile-targets '((nil :maxlevel . 9)
-                           (org-agenda-files :maxlevel . 9)))
+			   (org-agenda-files :maxlevel . 9)))
 
 (setq org-deadline-warning-days 10)
 (setq org-enforce-todo-dependencies t)
@@ -181,7 +239,7 @@
 (setq ido-max-directory-size 100000)
 
 (setq org-todo-keywords
-  '((sequence "TODO(t)" "STARTED(s!)" "BLOCKED(b@/!)" "FUTURE(f)" "|" "DONE(d!)" "CANCELLED(c@)")))
+      '((sequence "TODO(t)" "STARTED(s!)" "BLOCKED(b@/!)" "FUTURE(f)" "|" "DONE(d!)" "CANCELLED(c@)")))
 
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
@@ -189,10 +247,10 @@
 
 ;; enter insert mode when adding a heading
 (defun evil-append-when-insert-heading ()
- "enters insert-mode when inserting a heading"
-	(interactive)
-	(save-excursion
-		(evil-append 1)))
+  "enters insert-mode when inserting a heading"
+  (interactive)
+  (save-excursion
+    (evil-append 1)))
 (add-hook 'org-insert-heading-hook 'evil-append-when-insert-heading)
 
 
@@ -200,8 +258,8 @@
 (defun vimorg-tag-adjust ()
   (interactive)
   (while (re-search-forward "^*.*?\n[ \t]+:[^ \t]+:" nil t)
-	 (if (not (string-match "\\(PROPERTIES\\|LOGBOOK\\)" (thing-at-point 'line)))
-	   (join-line))))
+    (if (not (string-match "\\(PROPERTIES\\|LOGBOOK\\)" (thing-at-point 'line)))
+	(join-line))))
 
 (defun vimorg-set-unmodified ()
   (interactive)
@@ -226,7 +284,7 @@
  ;; If there is more than one, they won't work right.
  )
 
-; Theme stuff
+;; Theme stuff
 (setq solarized-use-variable-pitch nil)
 (setq solarized-height-minus-1 1.0) 
 (setq solarized-height-plus-1 1.0) 
