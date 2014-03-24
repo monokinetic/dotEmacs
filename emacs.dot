@@ -298,3 +298,6 @@
 (ido-mode t)
 (setq ido-everywhere t)
 (require 'ido-ubiquitous)
+
+;; Automatically open capture.org
+(setq initial-buffer-choice "/home/dmoss/Dropbox/org/capture.org")
