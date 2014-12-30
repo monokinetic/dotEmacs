@@ -7,6 +7,9 @@
 			 ("melpa" . "http://melpa.milkbox.net/packages/")))
 (package-initialize)
 
+;; Set up use-package, that pulls in other packages if not installed already
+(require 'use-package)
+
 ;; general key mappings
 (global-set-key (kbd "C-<up>") 'windmove-up) ;; Control + arrow to switch window
 (global-set-key (kbd "C-<down>") 'windmove-down)
@@ -28,25 +31,9 @@
 ;; disable annoying prompts
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; ibuffer stuff
-;; (require 'ibuffer)
-
-;; this is from a stackoverflow thread, might not be necessary?
-;; (setq ibuffer-saved-filter-groups
-;;       (quote (("default"
-;;               ("dired" (mode . dired-mode))
-;;                ("java" (mode . java-mode))
-;;                ("org" (mode . org-mode))
-;;               ("sql" (mode . sql-mode))
-;;                ("xml" (mode . nxml-mode))))))  ;;   ;;
-
-;; (setq ibuffer-show-empty-filter-groups nil)
-
-;; don't show the internal emacs buffers in ibuffer
-;; (add-hook 'ibuffer-mode-hook 
-;;  (lambda () 
-;; (ibuffer-switch-to-saved-filter-groups "default")
-;;   (ibuffer-filter-by-name "^[^*]")) ;; to show only dired and files buffers
+;; startup maximised
+(custom-set-variables
+ '(initial-frame-alist (quote ((fullscreen . maximized))))) ;; start maximized
 
 ;;Save History--------------------------------
 ;;Save mode-line history between sessions. Very good!
@@ -62,17 +49,12 @@
 ;; Enable control c/v by default
 (cua-mode t)
 
-;; fix work proxy
-;; (setq url-proxy-services
-;;      '(("no_proxy" . "^\\(localhost\\|10.*\\)")
-;;	("http" . "emea-proxy.uk.oracle.com:80")
-;;	("https" . "emea-proxy.uk.oracle.com:80")))
-
 ;; org-mode stuff
 (require 'org)
 (setq org-directory "~/Dropbox/org")
 (setq org-mobile-directory "~/Dropbox/Apps/myMobOrg")
 (setq org-agenda-files '("~/Dropbox/org"))
+(setq org-startup-folded t)
 
 (setq org-default-notes-file "~/Dropbox/org/capture.org")
 (setq org-mobile-inbox-for-pull "~/Dropbox/org/capture.org")
@@ -177,9 +159,15 @@
 (load-theme 'solarized-dark t)
 
 ;; IDO
-(require 'ido)
+;; (require 'ido)
+(use-package ido
+:ensure t
+:init
+(progn 
 (ido-mode t)
-(setq ido-everywhere t)
+(setq ido-everywhere t)))
+
+;; really need this?
 (require 'ido-ubiquitous)
 
 ;; (add-to-list 'load-path "~/Documents/Programming/elim/elisp")
@@ -349,5 +337,4 @@
 
 
 ;; Automatically open capture.org
-;; (setq initial-buffer-choice "/home/dmoss/Dropbox/org/capture.org")
 (setq initial-buffer-choice "~/Dropbox/org/capture.org")
